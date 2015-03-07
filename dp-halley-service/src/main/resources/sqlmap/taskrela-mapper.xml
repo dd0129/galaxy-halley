@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.core.dao.TaskRelaDAO">
+
+    <resultMap type="taskRelaDO" id="taskRela">
+        <result property="cycleGap" column="cycle_gap"/>
+        <result property="remark" column="remark"/>
+        <result property="taskId" column="task_id"/>
+        <result property="taskPreId" column="task_pre_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="timeStamp" column="time_stamp"/>
+        <result property="owner" column="owner"/>
+    </resultMap>
+
+    <select id="getTaskRelaByID" resultMap="taskRela" parameterType="Integer">
+		select a.task_id as task_pre_id,b.task_id,a.task_name,b.cycle_gap,a.if_val,a.owner,b.time_stamp,b.remark
+        from etl_task_cfg a inner join etl_taskrela_cfg b on a.task_id = b.task_pre_id and b.task_id= #{id}
+	</select>
+
+    <delete id="deleteTaskRela" parameterType="Integer">
+		delete from etl_taskrela_cfg where task_id=#{id}
+	</delete>
+
+    <insert id="insertTaskRela" parameterType="java.util.List">
+        INSERT INTO etl_taskrela_cfg
+        (
+        task_id,task_pre_id,remark,cycle_gap,time_stamp
+        )
+        VALUES
+        <foreach item="item" index="index" collection="list"
+                 separator=",">
+            (#{item.taskId},#{item.taskPreId},#{item.remark},#{item.cycleGap},#{item.timeStamp})
+        </foreach>
+    </insert>
+
+    <select id="getAllTaskRelations" resultMap="taskRela">
+        select task_id, task_pre_id, cycle_gap
+        from
+        etl_taskrela_cfg
+    </select>
+
+
+</mapper>
+

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:pigeon="http://code.dianping.com/schema/pigeon"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/tool
+           http://www.springframework.org/schema/tool/spring-tool.xsd
+           http://code.dianping.com/schema/pigeon
+           http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd">
+
+    <!--<pigeon:annotation />-->
+	<context:annotation-config />
+	<context:component-scan base-package="com.dianping" />
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="username" value="dianpingdw_beta" />
+		<property name="password" value="dp!@uUEMQV6fd" />
+		<property name="url" value="jdbc:mysql://10.1.77.22:3306/DianPingDW_beta?autoReconnect=true&amp;autoReconnectForPools=true&amp;useUnicode=true&amp;characterEncoding=utf-8" />
+	</bean>
+
+    <bean id="exceptionService" class="com.dianping.data.warehouse.utils.ExceptionAnalyze" />
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+    </bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+		p:sqlSessionFactory-ref="sqlSessionFactory" p:basePackage="com.dianping.data.warehouse.dao" />
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource" />
+
+    <!-- transaction -->
+    <aop:config>
+        <aop:pointcut id="defaultServiceOperation"
+                      expression="execution(* com.dianping.data.warehouse.dao.proxy.*.*(..))"/>
+        <aop:advisor pointcut-ref="defaultServiceOperation" advice-ref="defaultTxAdvice"/>
+    </aop:config>
+
+    <tx:advice id="defaultTxAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="save*"/>
+            <!--<tx:method name="*"/>-->
+        </tx:attributes>
+    </tx:advice>
+
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5"/>
+        <property name="maxPoolSize" value="150"/>
+        <property name="queueCapacity" value="25"/>
+    </bean>
+
+    <bean id="init" class="com.dianping.data.warehouse.executer.InitExecuter"/>
+    <bean id="execute" class="com.dianping.data.warehouse.executer.InstanceExecuter">
+        <constructor-arg ref="taskExecutor"/>
+    </bean>
+
+    <bean id="ready" class="com.dianping.data.warehouse.executer.ReadyExecuter"/>
+    <bean id="synchronized" class="com.dianping.data.warehouse.executer.SynchronizeExecuter"/>
+    <bean id="timeout" class="com.dianping.data.warehouse.executer.TimeoutExecuter"/>
+    <bean id="wait" class="com.dianping.data.warehouse.executer.WaitExecuter"/>
+    <bean id="recall" class="com.dianping.data.warehouse.executer.RecallExecuter"/>
+
+
+</beans>

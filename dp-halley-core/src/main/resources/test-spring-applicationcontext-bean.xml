@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <!--<pigeon:annotation />-->
+    <context:annotation-config/>
+    <context:component-scan base-package="com.dianping"/>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+
+    <!--<bean id="preExecute" class="com.dianping.data.warehouse.executer.PreJobExecuter">-->
+    <!--<constructor-arg ref="taskThreadPool"/>-->
+    <!--</bean>-->
+
+
+    <bean id="test1" class="com.dianping.data.warehouse.executer.Ready1Executer"/>
+    <bean id="test" class="com.dianping.data.warehouse.executer.ThreadMonitor">
+        <constructor-arg ref="test1" />
+    </bean>
+
+
+    <bean id="testService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="test"/>
+        <property name="targetMethod" value="start"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+
+
+    <!--trigger-->
+    <bean id="testTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="testService"/>
+        <property name="cronExpression" value="*/5 * * * * ?"/>
+        <!--<property name="cronExpression" value="*/10 * * * * ?"/>-->
+    </bean>
+
+    <bean id="cronTaskManager" lazy-init="true" autowire="no"
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <!--<ref bean="waitTrigger"/>-->
+                <!--<ref bean="timeoutTrigger"/>-->
+                <!--<ref bean="synchronizedTrigger"/>-->
+                <!--<ref bean="readyTrigger"/>-->
+                <!--<ref bean="executeTrigger"/>-->
+                <!--<ref bean="initTrigger"/>-->
+                <!--<ref bean="recallTrigger"/>-->
+                <ref bean="testTrigger"/>
+            </list>
+        </property>
+        <property name="schedulerName" value="startExecute"/>
+        <property name="configLocation" value="classpath:quartz.properties"/>
+    </bean>
+
+
+</beans>

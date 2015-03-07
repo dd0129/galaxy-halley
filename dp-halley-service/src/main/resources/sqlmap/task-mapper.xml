@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.core.dao.TaskDAO">
+
+    <resultMap id="taskRelaDO" type="taskRelaDO">
+        <result property="cycleGap" column="cycle"/>
+        <result property="taskPreId" column="task_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="owner" column="owner"/>
+    </resultMap>
+
+    <resultMap id="task" type="TaskDO">
+        <result property="addTime" column="add_time"/>
+        <result property="addUser" column="add_user"/>
+        <result property="cycle" column="cycle"/>
+        <result property="databaseSrc" column="database_src"/>
+        <result property="freq" column="freq"/>
+        <result property="ifPre" column="if_pre"/>
+        <result property="ifRecall" column="if_recall"/>
+        <result property="ifVal" column="if_val"/>
+        <result property="ifWait" column="if_wait"/>
+        <result property="logFile" column="log_file"/>
+        <result property="logHome" column="log_home"/>
+        <result property="offset" column="offset"/>
+        <result property="offsetType" column="offset_type"/>
+        <result property="owner" column="owner"/>
+        <result property="para1" column="para1"/>
+        <result property="para2" column="para2"/>
+        <result property="para3" column="para3"/>
+        <result property="prioLvl" column="prio_lvl"/>
+        <result property="recallCode" column="recall_code"/>
+        <result property="recallInterval" column="recall_Interval"/>
+        <result property="recallLimit" column="recall_Limit"/>
+        <result property="remark" column="remark"/>
+        <result property="successCode" column="success_code"/>
+        <result property="tableName" column="table_name"/>
+        <result property="taskGroupId" column="task_group_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="taskObj" column="task_obj"/>
+        <result property="timeout" column="timeout"/>
+        <result property="type" column="type"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="waitCode" column="wait_code"/>
+    </resultMap>
+
+    <select id="getTaskByTaskId" resultMap="task" parameterType="Integer">
+		select add_time,add_user,cycle,database_src,freq,if_pre,if_recall,if_val,if_wait,log_file,
+		log_home,offset,offset_type,owner,para1,para2,para3,prio_lvl,recall_code,recall_Interval,
+		recall_Limit,remark,success_code,table_name,task_group_id,task_id,task_name,task_obj,timeout,
+		type,update_time,update_user,wait_code from etl_task_cfg WHERE task_id=#{id}
+	</select>
+
+    <select id="queryTasksByTaskQueryDO" parameterType="Map" resultMap="task">
+        SELECT
+        task_id,task_name,cycle,owner,if_val,type, prio_lvl
+        FROM etl_task_cfg
+        <where>
+            if_val != 2
+            <if test="group != 0 and group!= null">and task_group_id = #{group}</if>
+            <if test="cycle != null and cycle != ''  ">and cycle = #{cycle}</if>
+            <if test="developer != null and developer != ''  ">and owner = #{developer}</if>
+            <if test="taskName != null">and task_name like '%${taskName}%'</if>
+            <if test="taskIds != null">and task_id in
+                <foreach collection="taskIds" open="(" close=")" separator="," item="taskId">
+                    #{taskId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getValidTasksByTaskIds" resultMap="task" parameterType="List">
+        select add_time,add_user,cycle,database_src,freq,if_pre,if_recall,if_val,if_wait,log_file,
+        log_home,offset,offset_type,owner,para1,para2,para3,prio_lvl,recall_code,recall_Interval,
+        recall_Limit,remark,success_code,table_name,task_group_id,task_id,task_name,task_obj,timeout,
+        type,update_time,update_user,wait_code from etl_task_cfg
+        WHERE if_val = 1
+        and task_id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--<select id="getAllTasks" resultMap="task">-->
+    <!--select task_id,task_obj From etl_task_cfg WHERE type=1-->
+    <!--</select>-->
+
+    <select id="getTaskIDList" resultType="Integer">
+		SELECT task_id FROM etl_task_cfg
+	</select>
+
+    <insert id="insertTask" parameterType="TaskDO">
+	INSERT INTO etl_task_cfg
+        (
+            task_id,task_name,table_name,
+            remark,database_src,task_obj,
+            para1,para2,para3,
+            recall_limit,recall_interval,log_home,
+            log_file,task_group_id,cycle,
+            prio_lvl,if_pre,if_recall,if_wait,
+            if_val,add_user,add_time,update_user,
+            update_time,type,offset,timeout,
+            offset_type,freq,owner,wait_code,
+            recall_code,success_code
+        )
+        VALUES
+            (
+            #{taskId},#{taskName},#{tableName},
+            #{remark},#{databaseSrc},#{taskObj},
+            #{para1},#{para2},#{para3},
+            #{recallLimit},#{recallInterval},#{logHome},
+            #{logFile},#{taskGroupId},#{cycle},
+            #{prioLvl},#{ifPre},#{ifRecall},#{ifWait},
+            #{ifVal},#{addUser},#{addTime},#{updateUser},
+            #{updateTime},#{type},#{offset},#{timeout},
+            #{offsetType},#{freq},#{owner},#{waitCode},
+            #{recallCode},#{successCode}
+            )
+	</insert>
+
+    <update id="updateTask" parameterType="TaskDO">
+		UPDATE etl_task_cfg
+        set
+            task_name = #{taskName},
+            table_name = #{tableName},
+            remark = #{remark},
+            database_src = #{databaseSrc},
+            task_obj = #{taskObj},
+            para1 = #{para1},
+            para2 = #{para2},
+            para3 = #{para3},
+            recall_limit = #{recallLimit},
+            recall_interval = #{recallInterval},
+            log_home = #{logHome},
+            log_file = #{logFile},
+            task_group_id = #{taskGroupId},
+            cycle = #{cycle},
+            prio_lvl = #{prioLvl},
+            if_pre = #{ifPre},
+            if_recall = #{ifRecall},
+            if_wait = #{ifWait},
+            if_val = #{ifVal},
+            update_user = #{updateUser},
+            update_time = #{updateTime},
+            type = #{type},
+            offset = #{offset},
+            offset_type = #{offsetType},
+            timeout = #{timeout},
+            freq = #{freq},
+            owner = #{owner},
+            wait_code = #{waitCode},
+            recall_code = #{recallCode},
+            success_code = #{successCode}
+            where task_id = #{taskId}
+	</update>
+
+    <update id="updateTaskStatus">
+		UPDATE etl_task_cfg
+        set
+        if_val=#{status},
+        update_time=#{updateTime},
+        update_user=#{updateUser}
+        where task_id = #{taskId}
+	</update>
+
+    <delete id="deleteTask" parameterType="Integer">
+		update etl_task_cfg
+		set if_val = 2,
+		update_time=#{updateTime},
+        update_user=#{updateUser}
+		where task_id=#{taskId}
+	</delete>
+
+    <update id="insertInstanceRela" parameterType="instanceRelaDO">
+        insert into etl_taskrela_status
+        (task_status_id,task_id,pre_sts_id,pre_id,time_stamp)
+        values(
+        #{instanceId},#{taskId},#{preInstanceId},#{preId},#{timestamp}
+        )
+    </update>
+
+    <!--<select id="getTableIdByTableName" parameterType="string" resultType="Integer">-->
+    <!--SELECT table_id-->
+    <!--FROM mc_table_info-->
+    <!--<where>-->
+    <!--table_name = #{tableName}-->
+    <!--and storage_type = 'hive' and-->
+    <!--</where>-->
+    <!--</select>-->
+
+    <select id="getTaskIdByTaskName" parameterType="string" resultType="Integer">
+        SELECT task_id
+        FROM etl_task_cfg
+        <where>
+            task_name = #{_parameter} and
+            if_val != 2
+        </where>
+    </select>
+
+    <!--<select id="getParentTableList" parameterType="Integer" resultType="String">-->
+    <!--select CONCAT_WS('/',MAX(line_num),parent_tab)-->
+    <!--from pedigree_analyze_result-->
+    <!--<where>-->
+    <!--task_id = #{taskId}-->
+    <!--and add_time >= CURDATE()-->
+    <!--</where>-->
+    <!--group by parent_tab-->
+    <!--</select>-->
+
+    <!--<select id="getTargetTableList" parameterType="Integer" resultType="String">-->
+    <!--select CONCAT_WS('/',MAX(line_num),child_tab)-->
+    <!--from pedigree_analyze_result-->
+    <!--<where>-->
+    <!--task_id = #{taskId}-->
+    <!--and add_time >= CURDATE()-->
+    <!--</where>-->
+    <!--group by child_tab-->
+    <!--</select>-->
+
+    <select id="getParentTaskIdList" parameterType="Map" resultType="Integer">
+        select a.task_id
+        from mc_data_task_map a,
+        mc_table_info b
+        <where>
+            a.table_id = b.table_id
+            and b.storage_type = 'hive'
+            and b.table_name in
+            <foreach collection="list" item="taskParentTableList" open="(" separator="," close=")">
+                #{taskParentTableList}
+            </foreach>
+        </where>
+        group by a.task_id
+    </select>
+
+    <select id="getParentTaskIdsByTables" parameterType="Map" resultType="java.util.HashMap">
+        select a.task_id,b.table_name
+        from mc_data_task_map a,
+        mc_table_info b
+        <where>
+            a.table_id = b.table_id
+            and b.storage_type = 'hive'
+            and b.table_name in
+            <foreach collection="list" item="tables" open="(" separator="," close=")">
+                #{tables}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getParentTaskIdMap" parameterType="Map" resultType="Integer">
+        select a.task_id,b.table_name
+        from mc_data_task_map a,
+        mc_table_info b
+        <where>
+            a.table_id = b.table_id
+            and b.storage_type = 'hive'
+            and b.table_name in
+            <foreach collection="list" item="taskParentTableList" open="(" separator="," close=")">
+                #{taskParentTableList}
+            </foreach>
+        </where>
+        group by a.task_id
+    </select>
+
+    <select id="getAllValidTasks" resultMap="task">
+        select owner,cycle,task_id,task_name from etl_task_cfg where if_val = 1
+    </select>
+
+    <select id="getDayTasks" resultMap="task">
+        select owner,cycle,task_id,task_name from etl_task_cfg where if_val = 1 and cycle = 'D'
+    </select>
+
+    <!--<update id="updateTableName">-->
+    <!--UPDATE etl_task_cfg-->
+    <!--set-->
+    <!--table_name=#{tableName}-->
+    <!--where task_id = #{taskId}-->
+    <!--</update>-->
+
+</mapper>

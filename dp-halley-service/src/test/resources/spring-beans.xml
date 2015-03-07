@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:pigeon="http://code.dianping.com/schema/pigeon"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://code.dianping.com/schema/pigeon
+       http://code.dianping.com/schema/pigeon/pigeon-service-2.0.xsd"
+       default-lazy-init="true" default-autowire="byName">
+
+    <pigeon:annotation/>
+    <context:annotation-config/>
+    <context:component-scan base-package="com.dianping"/>
+
+    <import resource="spring-applicationcontext.xml"/>
+
+    <bean name="placeholder" lazy-init="false" class="com.dianping.lion.client.InitializeConfig">
+    </bean>
+
+    <bean id="taskService" class="com.dianping.data.warehouse.core.service.TaskServiceImpl">
+        <!--<property name="taskService" ref="taskService"/>-->
+    </bean>
+
+    <bean id="taskPublish" class="com.dianping.data.warehouse.core.service.TaskPublishImpl">
+        <!--<property name="taskService" ref="taskService"/>-->
+    </bean>
+
+    <bean id="instanceService" class="com.dianping.data.warehouse.core.service.InstanceServiceImpl">
+        <!--<property name="taskService" ref="taskService"/>-->
+    </bean>
+
+    <bean id="monitorService" class="com.dianping.data.warehouse.core.service.MonitorServiceImpl">
+        <!--<property name="taskService" ref="taskService"/>-->
+    </bean>
+
+</beans>
+

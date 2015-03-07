@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <!--输出到控制台,方便调试,应用时可以关闭 -->
+    <appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+        <param name="Encoding" value="UTF8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%F:%L] - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="INFO"/>
+            <param name="LevelMax" value="ERROR"/>
+        </filter>
+    </appender>
+
+    <appender name="filelog" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="/data/deploy/dwarch/log/Scheduling/info.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="Append" value="true"/>
+        <param name="Encoding" value="UTF8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%F:%L] - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="INFO"/>
+            <param name="LevelMax" value="INFO"/>
+        </filter>
+
+    </appender>
+
+    <appender name="output" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/data/deploy/dwarch/log/Scheduling/debug.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="Append" value="true"/>
+        <param name="Encoding" value="UTF8"/>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="DEBUG"/>
+            <param name="LevelMax" value="DEBUG"/>
+        </filter>
+    </appender>
+
+    <appender name="warn" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/data/deploy/dwarch/log/Scheduling/warn.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="Append" value="true"/>
+        <param name="Encoding" value="UTF8"/>
+
+        <!--<layout class="org.apache.log4j.PatternLayout">-->
+            <!--<param name="ConversionPattern" value="%m%n"/>-->
+        <!--</layout>-->
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%F:%L] - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="WARN"/>
+            <param name="LevelMax" value="WARN"/>
+        </filter>
+    </appender>
+
+    <appender name="errorfile" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/data/deploy/dwarch/log/Scheduling/error.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="Append" value="true"/>
+        <param name="Encoding" value="UTF8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%F:%L] - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="ERROR"/>
+            <param name="LevelMax" value="ERROR"/>
+        </filter>
+    </appender>
+
+    <appender name="dqcFile" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/data/deploy/dwarch/log/Scheduling/dqc.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="Append" value="true"/>
+        <param name="Encoding" value="UTF8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%F:%L] - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="info"/>
+            <param name="LevelMax" value="error"/>
+        </filter>
+    </appender>
+
+    <!-- apache包要输出error以上等级的日志 -->
+    <logger name="org.apache">
+        <level value="ERROR"/>
+        <appender-ref ref="dqcFile" />
+    </logger>
+
+    <logger name="org.springframework">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="com.dianping">
+        <level value="DEBUG"/>
+    </logger>
+
+    <logger name="com.dianping.dqc">
+        <level value="INFO"/>
+        <appender-ref ref="dqcFile" />
+    </logger>
+
+
+    <!--
+    <logger name="com.ibatis" additivity="true">
+        <level value="INFO" />
+    </logger>
+
+    <logger name="java.sql.Connection" additivity="true">
+        <level value="DEBUG" />
+    </logger>
+    <logger name="java.sql.Statement" additivity="true">
+        <level value="DEBUG" />
+    </logger>
+    <logger name="java.sql.PreparedStatement" additivity="true">
+        <level value="DEBUG" />
+    </logger>
+    <logger name="java.sql.ResultSet" additivity="true">
+        <level value="DEBUG" />
+    </logger>
+    -->
+    <root>
+        <priority value="warn"/>
+        <appender-ref ref="filelog"/>
+        <!--<appender-ref ref="output"/>-->
+        <appender-ref ref="errorfile"/>
+        <appender-ref ref="warn"/>
+        <appender-ref ref="ConsoleAppender"/>
+    </root>
+</log4j:configuration>

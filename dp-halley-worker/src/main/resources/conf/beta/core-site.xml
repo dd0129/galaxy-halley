@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://cosmos03.beta/</value>
+        <final>true</final>
+    </property>
+
+    <property>
+        <name>hadoop.security.authentication</name>
+        <value>kerberos</value>
+    </property>
+
+    <property>
+        <name>test.hadoop.principal</name>
+        <value>bipreempt@DIANPING.COM</value>
+    </property>
+
+    <property>
+        <name>test.hadoop.keytab.file</name>
+        <value>d:/data/home/bipreempt/bipreempt.keytab</value>
+    </property>
+
+</configuration>

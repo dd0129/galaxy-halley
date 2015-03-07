@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <typeAlias alias="TaskRelaDO" type="com.dianping.data.warehouse.halley.domain.TaskRelaDO"/>
+        <typeAlias alias="TaskDO" type="com.dianping.data.warehouse.halley.domain.TaskDO"/>
+        <typeAlias alias="InstanceQueryDO" type="com.dianping.data.warehouse.halley.domain.InstanceQueryDO"/>
+        <typeAlias alias="InstanceDisplayDO" type="com.dianping.data.warehouse.halley.domain.InstanceDisplayDO"/>
+        <typeAlias alias="instanceDO" type="com.dianping.data.warehouse.halley.domain.InstanceDO"/>
+        <typeAlias alias="TaskChildToParentDO" type="com.dianping.data.warehouse.halley.domain.TaskChildToParentDO"/>
+        <typeAlias alias="PublishFile" type="com.dianping.data.warehouse.halley.domain.PublishFileDO"/>
+        <typeAlias alias="MonitorDO" type="com.dianping.data.warehouse.halley.domain.MonitorDO"/>
+        <typeAlias alias="ownerDO" type="com.dianping.data.warehouse.halley.domain.TaskOwnerDO"/>
+        <typeAlias alias="instanceRelaDO" type="com.dianping.data.warehouse.halley.domain.InstanceRelaDO"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="sqlmap/task-mapper.xml"/>
+        <mapper resource="sqlmap/taskrela-mapper.xml"/>
+        <mapper resource="sqlmap/instance-mapper.xml"/>
+        <mapper resource="sqlmap/publishLog-mapper.xml"/>
+        <mapper resource="sqlmap/monitor-mapper.xml"/>
+    </mappers>
+
+</configuration>

@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.core.dao.InstanceDAO">
+
+    <sql id="table1">etl_task_status</sql>
+    <sql id="table2">etl_taskrela_status</sql>
+
+
+    <resultMap id="instanceDisplayDO" type="InstanceDisplayDO">
+        <result property="taskStatusId" column="task_status_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="taskId" column="task_id"/>
+        <result property="status" column="status"/>
+        <result property="cycle" column="cycle"/>
+        <result property="triggerTime" column="trigger_time"/>
+        <result property="databaseSrc" column="database_src"/>
+        <result property="owner" column="owner"/>
+        <result property="logPath" column="log_path"/>
+        <result property="recallNum" column="recall_num"/>
+        <result property="runNum" column="run_num"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="timeId" column="time_id"/>
+        <result property="prioLvl" column="prio_lvl"/>
+    </resultMap>
+
+    <resultMap id="childToParentMap" type="TaskChildToParentDO">
+        <result property="childId" column="child_id"/>
+        <result property="childText" column="child_text"/>
+        <result property="childTaskName" column="child_task_name"/>
+        <result property="childStatus" column="child_status"/>
+        <result property="childEndTime" column="child_end_time"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="parentText" column="parent_text"/>
+        <result property="parentTaskName" column="parent_task_name"/>
+        <result property="parentStatus" column="parent_status"/>
+        <result property="parentEndTime" column="parent_end_time"/>
+        <result property="timeId" column="time_id"/>
+    </resultMap>
+
+    <resultMap id="instancesMap" type="instanceDO">
+        <id property="instanceId" column="task_status_id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="cycle" column="cycle"/>
+        <result property="owner" column="owner"/>
+        <result property="status" column="status"/>
+        <result property="logPath" column="log_path"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="prioLvl" column="prio_lvl"/>
+        <result property="runNum" column="run_num"/>
+        <result property="recallNum" column="recall_num"/>
+        <result property="TriggerTime" column="trigger_time"/>
+        <result property="taskId" column="task_id"/>
+        <result property="jobCode" column="job_code"/>
+        <result property="para1" column="para1"/>
+        <result property="para2" column="para2"/>
+        <result property="para3" column="para3"/>
+    </resultMap>
+
+    <resultMap id="owner" type="ownerDO">
+        <result property="pinyinName" column="owner_name"/>
+        <result property="mail" column="mail"/>
+        <result property="phone" column="phone"/>
+    </resultMap>
+
+    <select id="getChildTaskStatusIdsByTaskStatusIds" parameterType="list" resultType="string">
+        select task_status_id
+        from
+        <include refid="table2"/>
+        where
+        pre_sts_id in
+        <foreach collection="list" open="(" close=")" separator="," item="taskStatusId">
+            #{taskStatusId}
+        </foreach>
+    </select>
+
+    <select id="getTaskStatusIdsByInstanceQueryDO" parameterType="InstanceQueryDO" resultType="string">
+        select task_status_id
+        from
+        <include refid="table1"/>
+        <where>
+            <if test="startTime == endTime">time_id = #{startTime}</if>
+            <if test="startTime != endTime">time_id between #{startTime} and #{endTime}</if>
+            <if test="cycle != null">and cycle = #{cycle}</if>
+            <if test="status == 99">and status != 1</if>
+            <if test="status != 99 and status != 100">and status = #{status}</if>
+            <if test="prioLvl == 4">and prio_lvl &gt; #{prioLvl}</if>
+            <if test="prioLvl != 100 and prioLvl != 4">and prio_lvl = #{prioLvl}</if>
+            <if test="owner != null">and owner = #{owner}</if>
+            <if test="taskName != null">and task_name like '%${taskName}%'</if>
+            <if test="taskIds != null">and task_id in
+                <foreach collection="taskIds" open="(" close=")" separator="," item="taskId">
+                    #{taskId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getInstanceByTaskStatusId" resultMap="instanceDisplayDO">
+        select task_status_id, task_id, database_src, owner, task_name, status, cycle, trigger_time, log_path,
+        recall_num, run_num, start_time, end_time, time_id, prio_lvl
+        from
+        <include refid="table1"/>
+        where
+        task_status_id = #{taskStatusId}
+    </select>
+
+    <select id="getInstancesByTaskStatusIds" resultMap="instanceDisplayDO">
+        select task_status_id, task_id, database_src, owner, task_name, status, cycle, trigger_time, log_path,
+        recall_num, run_num, start_time, end_time, time_id, prio_lvl
+        from
+        <include refid="table1"/>
+        where
+        task_status_id in
+        <foreach collection="list" open="(" close=")" separator="," item="taskStatusId">
+            #{taskStatusId}
+        </foreach>
+    </select>
+
+
+    <select id="getInstancesByDate" resultMap="instanceDisplayDO">
+        select task_status_id, task_id, database_src, owner, task_name, status, cycle, trigger_time, log_path,
+        recall_num, run_num, start_time, end_time, time_id, prio_lvl
+        from
+        <include refid="table1"/>
+        where
+        time_id = #{_parameter}
+    </select>
+
+
+    <select id="getInstancesByInstanceQueryDO" parameterType="InstanceQueryDO" resultMap="instanceDisplayDO">
+        select task_status_id, task_id, database_src, owner, task_name, status, cycle, trigger_time, log_path,
+        recall_num, run_num, start_time, end_time, time_id, prio_lvl
+        from
+        <include refid="table1"/>
+        <where>
+            <if test="startTime == endTime">time_id = #{startTime}</if>
+            <if test="startTime != endTime">time_id between #{startTime} and #{endTime}</if>
+            <if test="cycle != null">and cycle = #{cycle}</if>
+            <if test="status == 99">and status != 1</if>
+            <if test="status != 99 and status != 100">and status = #{status}</if>
+            <if test="prioLvl == 4">and prio_lvl &gt; #{prioLvl}</if>
+            <if test="prioLvl != 100 and prioLvl != 4">and prio_lvl = #{prioLvl}</if>
+            <if test="owner != null">and owner = #{owner}</if>
+            <if test="taskName != null">and task_name like '%${taskName}%'</if>
+            <if test="taskIds != null">and task_id in
+                <foreach collection="taskIds" open="(" close=")" separator="," item="taskId">
+                    #{taskId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getInstanceRelaByDate" resultType="Map">
+        select task_status_id, pre_sts_id
+        from
+        <include refid="table2"/>
+        where
+        pre_sts_id in
+
+        <include refid="table1"/>
+        <where>
+            <if test="startTime == endTime">time_id = #{startTime}</if>
+            <if test="startTime != endTime">time_id between #{startTime} and #{endTime}</if>
+            <if test="cycle != null">and cycle = #{cycle}</if>
+            <if test="status == 99">and status != 1</if>
+            <if test="status != 99 and status != 100">and status = #{status}</if>
+            <if test="prioLvl == 4">and prio_lvl &gt; #{prioLvl}</if>
+            <if test="prioLvl != 100 and prioLvl != 4">and prio_lvl = #{prioLvl}</if>
+            <if test="owner != null">and owner = #{owner}</if>
+            <if test="taskName != null">and task_name like '%${taskName}%'</if>
+            <if test="taskIds != null">and task_id in
+                <foreach collection="taskIds" open="(" close=")" separator="," item="taskId">
+                    #{taskId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getInstanceDirectRelationsByInstanceId" resultType="Map">
+        select task_status_id, pre_sts_id
+        from
+        <include refid="table2"/>
+        where
+        pre_sts_id = #{taskStatusId} or task_status_id = #{taskStatusId}
+    </select>
+
+
+    <select id="getInstanceRelationsByTaskStatusIds" resultType="Map">
+        select task_status_id, pre_sts_id
+        from
+        <include refid="table2"/>
+        where
+        pre_sts_id in
+        <foreach collection="list" open="(" close=")" separator="," item="taskStatusId">
+            #{taskStatusId}
+        </foreach>
+    </select>
+
+    <select id="getDirectRelationTaskStatusIdsByTaskStatusId" parameterType="string" resultType="string">
+        select task_status_id
+        from
+        <include refid="table2"/>
+        where
+        pre_sts_id = #{_parameter}
+        UNION
+        select pre_sts_id
+        from
+        <include refid="table2"/>
+        where
+        task_status_id = #{_parameter}
+    </select>
+
+    <update id="batchStop" parameterType="string">
+        UPDATE
+        <include refid="table1"/>
+        <set>
+            status = 3
+        </set>
+        <where>
+            task_id = #{_parameter} and task_status_id like 'pre_%' and status in (0,6);
+        </where>
+    </update>
+
+    <update id="raisePriority" parameterType="string">
+        UPDATE
+        <include refid="table1"/>
+        <set>
+            running_prio=400
+        </set>
+        <where>
+            task_status_id = #{_parameter}
+            AND running_prio &lt;400
+        </where>
+    </update>
+
+    <update id="recall" parameterType="string">
+        UPDATE
+        <include refid="table1"/>
+        <set>
+            status = 0 AND sts_desc = 'INIT'
+        </set>
+        <where>
+            task_status_id = #{taskStatusId}
+            AND status IN (1, -1, 3, 5)
+        </where>
+    </update>
+
+    <update id="suspend" parameterType="string">
+        UPDATE
+        <include refid="table1"/>
+        <set>
+            status = 3
+        </set>
+        <where>
+            task_status_id = #{taskStatusId}
+        </where>
+    </update>
+
+    <update id="success" parameterType="string">
+        UPDATE
+        <include refid="table1"/>
+        <set>
+            status = 1
+        </set>
+        <where>
+            task_status_id = #{taskStatusId}
+        </where>
+    </update>
+
+
+    <select id="getInstancesByConditions" resultType="java.util.HashMap" parameterType="Map">
+        SELECT
+        task_id, task_status_id,task_name,cycle,
+        owner,status,log_path,start_time,
+        end_time,prio_lvl,
+        run_num,recall_num,trigger_time,time_id
+        FROM etl_task_status
+        WHERE
+        time_id &gt;= #{startDate} AND
+        time_id &lt;= #{endDate}
+        <if test="jobStatus == -2">
+            AND status in (-1,0,2,3,4,5,6,7)
+        </if>
+        <if test="jobStatus != -2 and jobStatus != -3 ">
+            AND status = #{jobStatus}
+        </if>
+        <if test="execCycle != null and execCycle != '' ">
+            AND cycle = #{execCycle}
+        </if>
+        <if test="owner != null and owner != '' ">
+            AND owner = #{owner}
+        </if>
+
+    </select>
+
+    <select id="getInstancesByTaskID" resultType="java.util.HashMap" parameterType="Map">
+        SELECT
+          task_status_id,task_name,cycle,
+          owner,status,log_path,start_time,
+          end_time,prio_lvl,
+          run_num,recall_num,trigger_time,job_code
+        FROM
+          etl_task_status
+        WHERE
+          task_id = #{taskID}
+    </select>
+
+    <select id="getInstancesForOncall" resultMap="instancesMap">
+        SELECT
+          *
+        FROM
+          etl_task_status
+        WHERE
+          task_id = #{taskId} and task_status_id not like 'pre_%' and time_id=#{timeId}
+    </select>
+
+    <select id="getExceptionResponsible" resultType="java.lang.String">
+        select oncall From etl_exception_cfg where id=#{jobCode}
+    </select>
+
+    <select id="getOwnerByConditions" resultMap="owner">
+        select * From dim_owner
+        <where>
+            1=1
+            <if test="owner != null">
+                and owner_name =#{owner}
+            </if>
+            <if test="groupType != null">
+                and group_type =#{groupType} and oncall_state=1
+            </if>
+        </where>
+    </select>
+
+    <update id="reRunInstance" parameterType="java.util.HashMap">
+        UPDATE etl_task_status
+        <set>
+            status = 0 , sts_desc = 'INIT'
+        </set>
+        <where>
+            task_status_id in
+            <foreach collection="instanceIds.entrySet()" item="obj" separator="," open="(" close=")">
+                #{obj.key}
+            </foreach>
+            AND status IN (1, -1, 3, 5)
+        </where>
+    </update>
+
+    <update id="modifyInstanceStatus" parameterType="Map">
+        UPDATE etl_task_status
+        <set>
+            status = #{status}
+        </set>
+        <where>
+            task_status_id in
+            <foreach collection="instanceIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </update>
+
+    <select id="getChildToParent" resultMap="childToParentMap">
+        SELECT
+        a.task_status_id AS child_id,
+        a.task_id AS child_text,
+        a.task_name AS child_task_name,
+        a.status AS child_status,
+        UNIX_TIMESTAMP(a.end_time) AS child_end_time,
+        a.time_id AS time_id,
+        c.task_status_id AS parent_id,
+        c.task_id AS parent_text,
+        c.task_name AS parent_task_name,
+        c.status AS parent_status,
+        UNIX_TIMESTAMP(c.end_time) AS parent_end_time
+        FROM etl_task_status a
+        INNER JOIN etl_taskrela_status b
+        ON a.task_status_id = b.task_status_id
+        INNER JOIN etl_task_status c
+        ON b.pre_sts_id = c.task_status_id
+        <where>
+            <if test="date != null">
+                a.time_id = #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTaskStatusFieldForCascade" resultType="java.util.HashMap" parameterType="Map">
+        SELECT
+        a.task_status_id AS child_id,
+        a.task_id AS child_text,
+        a.task_name AS child_task_name,
+        a.status AS child_status,
+        UNIX_TIMESTAMP(a.end_time) AS child_end_time,
+        a.time_id AS time_id
+        from etl_task_status a
+        <where>
+            <if test="date != null">
+                a.time_id = #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTaskRelaStatusFieldForCascade" resultType="java.util.HashMap" parameterType="Map">
+        select
+        b.task_status_id,
+        b.pre_sts_id
+        from etl_taskrela_status b
+        <where>
+            <if test="date != null">
+                b.time_stamp &gt;= #{date}
+            </if>
+        </where>
+    </select>
+
+    <update id="reRunCascadeJobs">
+        UPDATE etl_task_status
+        <set>
+            status = 0 , sts_desc = 'INIT'
+        </set>
+        <where>
+            task_id in
+            <foreach collection="taskIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            AND time_id between #{startDate} and #{endDate}
+            AND status IN (1, -1, 3, 5)
+        </where>
+    </update>
+
+    <select id="queryPreRunInstances" resultType="java.util.HashMap" parameterType="Map">
+        select
+        *
+        from etl_task_status
+        where
+        <if test="preRunTime != null and preRunTime != '' ">
+            time_stamp &gt;= #{preRunTime}
+        </if>
+        <if test="task_committer != null and task_committer != '' ">
+            AND task_committer = #{task_committer}
+        </if>
+        <if test="taskID != null and taskID != '' ">
+            AND task_id = #{taskID}
+        </if>
+        <if test="taskName != null and taskName != '' ">
+            AND task_name like '%${taskName}%'
+        </if>
+        AND task_status_id like 'pre_%'
+    </select>
+
+    <insert id="insertInstance" parameterType="instanceDO">
+        insert into etl_task_status(
+        task_status_id,task_id,task_group_id,task_name,task_obj,
+        para1,para2,para3,log_path,cycle,
+        time_id,status,prio_lvl,run_num,type,
+        table_name,cal_dt,database_src,
+        if_pre,if_wait,if_recall,sts_desc,recall_num,
+        owner,trigger_time,recall_code,success_code,wait_code,
+        job_code,freq,timeout,recall_interval,
+        recall_limit,running_prio,time_stamp,task_committer
+        )
+        values(
+        #{instanceId},#{taskId},#{taskGroupId},#{taskName},#{taskObj},
+        #{para1},#{para2},#{para3},#{logPath},#{cycle},
+        #{timeId},#{status},#{prioLvl},#{runNum},#{type},
+        #{tableName},#{calDt},#{databaseSrc},
+        #{ifPre},#{ifWait},#{ifRecall},#{stsDesc},#{recallNum},
+        #{owner},#{TriggerTime},#{recallCode},#{successCode},#{waitCode},
+        #{jobCode},#{freq},#{timeout},#{recallInterval},#{recallLimit},#{runningPrio},
+        now(),#{task_committer}
+        )
+    </insert>
+
+    <select id="getDirectPreInstanceIdsByInstanceId" resultType="string" parameterType="string">
+        select pre_sts_id from etl_taskrela_status
+        where task_status_id = #{_parameter}
+    </select>
+
+    <select id="getInstancesByStatus" resultMap="instanceDisplayDO" parameterType="Integer">
+        select task_status_id, task_id, database_src, owner, task_name, status, cycle, trigger_time, log_path,
+        recall_num, run_num, start_time, end_time, time_id, prio_lvl
+        from etl_task_status where status = #{_parameter}
+    </select>
+
+    <select id="getInstanceForOncallByTaskStatusId" resultMap="instancesMap">
+        SELECT
+        *
+        FROM
+        etl_task_status
+        WHERE
+        task_status_id = #{_parameter}
+    </select>
+
+</mapper>

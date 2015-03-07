@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <!--<pigeon:annotation />-->
+    <context:annotation-config/>
+    <context:component-scan base-package="com.dianping"/>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <bean name="placeholder" lazy-init="false" class="com.dianping.lion.client.InitializeConfig">
+    </bean>
+
+    <bean id="taskThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="10"/>
+        <property name="maxPoolSize" value="200"/>
+        <property name="queueCapacity" value="5"/>
+    </bean>
+    <bean id="execute" class="com.dianping.data.warehouse.executer.InstanceExecuter">
+        <constructor-arg ref="taskThreadPool"/>
+    </bean>
+    <!--<bean id="preExecute" class="com.dianping.data.warehouse.executer.PreJobExecuter">-->
+    <!--<constructor-arg ref="taskThreadPool"/>-->
+    <!--</bean>-->
+
+    <bean id="init" class="com.dianping.data.warehouse.executer.InitExecuter" />
+    <bean id="ready" class="com.dianping.data.warehouse.executer.ReadyExecuter"/>
+    <bean id="synchronized" class="com.dianping.data.warehouse.executer.SynchronizeExecuter"/>
+    <bean id="timeout" class="com.dianping.data.warehouse.executer.TimeoutExecuter"/>
+    <bean id="wait" class="com.dianping.data.warehouse.executer.WaitExecuter"/>
+    <bean id="recall" class="com.dianping.data.warehouse.executer.RecallExecuter"/>
+
+    <!--<bean id="test1" class="com.dianping.data.warehouse.executer.Ready1Executer"/>-->
+    <!--<bean id="test" class="com.dianping.data.warehouse.executer.ThreadMonitor">-->
+        <!--<constructor-arg ref="test1" />-->
+    <!--</bean>-->
+
+
+    <!--<bean id="testService"-->
+          <!--class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">-->
+        <!--<property name="targetObject" ref="test"/>-->
+        <!--<property name="targetMethod" value="start"/>-->
+        <!--<property name="concurrent" value="false"/>-->
+    <!--</bean>-->
+
+    <bean id="initService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="init"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    <bean id="executeService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="execute"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    <bean id="readyService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="ready"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="true"/>
+    </bean>
+    <bean id="synchronizedService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="synchronized"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+
+    <bean id="timeoutService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="timeout"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    <bean id="waitService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="wait"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    <bean id="recallService"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="recall"/>
+        <property name="targetMethod" value="execute"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    <!--trigger-->
+    <bean id="testTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="testService"/>
+        <property name="cronExpression" value="*/5 * * * * ?"/>
+        <!--<property name="cronExpression" value="*/10 * * * * ?"/>-->
+    </bean>
+
+    <bean id="initTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="initService"/>
+        <property name="cronExpression" value="10 0-59/10 * * * ?"/>
+        <!--<property name="cronExpression" value="*/10 * * * * ?"/>-->
+    </bean>
+
+    <bean id="executeTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="executeService"/>
+        <property name="cronExpression" value="*/3 * * * * ?"/>
+    </bean>
+
+    <bean id="readyTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="readyService"/>
+        <property name="cronExpression" value="15 * * * * ?"/>
+    </bean>
+
+    <bean id="synchronizedTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="synchronizedService"/>
+        <property name="cronExpression" value="20 * * * * ?"/>
+    </bean>
+
+    <bean id="timeoutTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="timeoutService"/>
+        <property name="cronExpression" value="30 * * * * ?"/>
+    </bean>
+
+    <bean id="waitTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="waitService"/>
+        <property name="cronExpression" value="40 0-59/10 * * * ?"/>
+    </bean>
+    <bean id="recallTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="recallService"/>
+        <property name="cronExpression" value="50 * * * * ?"/>
+    </bean>
+
+    <bean id="cronTaskManager" lazy-init="true" autowire="no"
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <!--<ref bean="waitTrigger"/>-->
+                <!--<ref bean="timeoutTrigger"/>-->
+                <!--<ref bean="synchronizedTrigger"/>-->
+                <!--<ref bean="readyTrigger"/>-->
+                <!--<ref bean="executeTrigger"/>-->
+                <!--<ref bean="initTrigger"/>-->
+                <!--<ref bean="recallTrigger"/>-->
+                <ref bean="testTrigger"/>
+            </list>
+        </property>
+        <property name="schedulerName" value="startExecute"/>
+        <property name="configLocation" value="classpath:quartz.properties"/>
+    </bean>
+
+
+</beans>

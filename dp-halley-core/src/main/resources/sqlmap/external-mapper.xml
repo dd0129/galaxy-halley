@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.dao.TaskDAO">
+
+	<resultMap id="taskRela" type="taskRela">
+		<result property="cycleGap" column="cycle_gap" />
+		<result property="remark" column="remark" />
+		<result property="taskId" column="task_id" />
+		<result property="preId" column="task_pre_id" />
+		<result property="timeStamp" column="time_stamp" />
+	</resultMap>
+	
+	<resultMap id="task" type="task" >
+        <result property="taskId"           column="task_id"              />
+        <result property="taskName"         column="task_name"            />
+        <result property="tableName"        column="table_name"           />
+        <result property="remark"           column="remark"               />
+        <result property="databaseSrc"      column="database_src"         />
+        <result property="taskObj"          column="task_obj"             />
+        <result property="para1"            column="para1"                />
+        <result property="para2"            column="para2"                />
+        <result property="para3"            column="para3"                />
+        <result property="logHome"          column="log_home"             />
+        <result property="logFile"          column="log_file"             />
+        <result property="taskGroupId"      column="task_group_id"        />
+        <result property="cycle"            column="cycle"                />
+        <result property="prioLvl"          column="prio_lvl"             />
+        <result property="ifRecall"         column="if_recall"            />
+        <result property="ifWait"           column="if_wait"              />
+        <result property="ifPre"            column="if_pre"               />
+        <result property="ifVal"            column="if_val"               />
+        <result property="addUser"          column="add_user"             />
+        <result property="addTime"          column="add_time"             />
+        <result property="updateUser"       column="update_user"          />
+        <result property="updateTime"       column="update_time"          />
+        <result property="type"             column="type"                 />
+        <result property="offset"           column="offset"               />
+        <result property="offsetType"       column="offset_type"          />
+        <result property="freq"             column="freq"                 />
+        <result property="owner"            column="owner"                />
+        <result property="waitCode"         column="wait_code"            />
+        <result property="recallCode"       column="recall_code"          />
+        <result property="timeout"          column="timeout"              />
+        <result property="recallInterval"   column="recall_interval"      />
+        <result property="recallLimit"      column="recall_limit"         />
+        <result property="successCode"      column="success_code"         />
+    </resultMap>
+
+    <select id="getValidateTaskList" resultMap="task" parameterType="Integer" >
+		select
+        task_id,task_name,table_name,remark,database_src,task_obj,para1,para2,para3,log_home,log_file,task_group_id,
+        cycle,prio_lvl,if_recall,if_wait,if_pre,if_val,add_user,add_time,update_user,update_time,type,offset,offset_type,
+        freq,owner,wait_code,recall_code,timeout,recall_interval,recall_limit,success_code
+        from etl_task_cfg where if_val = #{status}
+	</select>
+	
+	<select id="getTaskRelaList" resultMap="taskRela">
+		SELECT * FROM etl_taskrela_cfg
+	</select>
+</mapper>

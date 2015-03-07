@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.halley.dao.InstanceDAO">
+
+    <resultMap id="transformLog" type="log">
+        <result property="instanceId" column="task_status_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="timeId" column="time_id"/>
+        <result property="timeCost" column="time_cost"/>
+        <result property="avgByteSpeed" column="avg_byte_speed"/>
+        <result property="avgLineSpeed" column="avg_line_speed"/>
+        <result property="totalRecords" column="total_records" />
+        <result property="host" column="host" />
+        <result property="logPath" column="log_path" />
+        <result property="timestamp" column="timestamp" />
+    </resultMap>
+
+	<resultMap id="inst" type="instance" >
+        <id property="instanceId"   column="task_status_id"  />
+        <result property="taskId"          column="task_id"         />
+        <result property="taskName"        column="task_name"       />
+        <result property="taskGroupId"    column="task_group_id"   />
+        <result property="databaseSrc"        column="database_src"    />
+        <result property="taskObj"         column="task_obj"        />
+        <result property="para1"            column="para1"           />
+        <result property="para2"            column="para2"           />
+        <result property="para3"            column="para3"           />
+        <result property="logPath"         column="log_path"        />
+        <result property="cycle"            column="cycle"           />
+        <result property="timeId"          column="time_id"         />
+        <result property="status"           column="status"          />
+        <result property="stsDesc"         column="sts_desc"        />
+        <result property="ifWait"          column="if_wait"         />
+        <result property="ifRecall"        column="if_recall"       />
+        <result property="ifPre"           column="if_pre"          />
+        <result property="prioLvl"         column="prio_lvl"        />
+        <result property="recallNum"       column="recall_num"      />
+        <result property="runNum"          column="run_num"         />
+        <result property="recallInterval"  column="recall_interval" />
+        <result property="recallLimit"     column="recall_limit"    />
+        <result property="startTime"       column="start_time"      />
+        <result property="endTime"         column="end_time"        />
+        <result property="timestamp"       column="time_stamp"      />
+        <result property="type"             column="type"            />
+        <result property="tableName"       column="table_name"      />
+        <result property="calDt"           column="cal_dt"          />
+        <result property="freq"             column="freq"            />
+        <result property="owner"            column="owner"           />
+        <result property="triggerTime"     column="trigger_time"    />
+        <result property="waitCode"        column="wait_code"       />
+        <result property="recallCode"      column="recall_code"     />
+        <result property="successCode"     column="success_code"    />
+        <result property="jobCode"         column="job_code"        />
+        <result property="runningPrio"     column="running_prio"    />
+        <result property="timeout"          column="timeout"         />
+        <result property="jobCodeMsg"       column="job_codemsg"    />
+    </resultMap>
+
+    <select id="getInstances" resultMap="inst">
+        SELECT * FROM etl_task_status WHERE time_Id=#{time_Id} and status=1 and type=1
+    </select>
+
+    <insert id="insertLog" parameterType="log">
+        insert into etl_transform_log(
+        instance_id,task_id,start_time,end_time,time_Id,time_cost,
+        avg_byte_speed,avg_line_speed,total_records,host,log_path,time_stamp
+        )
+        values(
+        #{instanceId},#{taskId},#{startTime},#{endTime},#{timeId},#{timeCost},
+        #{avgByteSpeed},#{avgLineSpeed},#{totalRecords},#{host},#{logPath},now()
+        )
+    </insert>
+
+    <delete id="deleteLog" parameterType="String">
+        delete from etl_transform_log where instance_id=#{instanceId}
+    </delete>
+
+</mapper>

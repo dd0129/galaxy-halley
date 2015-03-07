@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/jdbc 
+           http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.dianping"/>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="username" value="dianpingdw_beta"/>
+        <property name="password" value="dp!@uUEMQV6fd"/>
+        <property name="url"
+                  value="jdbc:mysql://10.1.77.22:3306/DianPingDW_beta?autoReconnect=true&amp;autoReconnectForPools=true&amp;useUnicode=true&amp;characterEncoding=utf-8"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="dataSource" p:configLocation="classpath:mybatis-config.xml"/>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+          p:sqlSessionFactory-ref="sqlSessionFactory" p:basePackage="com.dianping.data.warehouse.core.dao"/>
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="dataSource"/>
+
+    <tx:annotation-driven/>
+
+    <bean id="taskService"
+          class="com.dianping.data.warehouse.core.service.TaskServiceImpl"/>
+
+    <!--<bean id="taskServicePigeon" class="com.dianping.dpsf.spring.ProxyBeanFactory"-->
+    <!--init-method="init">-->
+    <!--<property name="serviceName" value="http://service.dianping.com/dpHalleyService/taskService_1.0.0" />-->
+    <!--<property name="iface"-->
+    <!--value="com.dianping.data.warehouse.halley.service.TaskService" />&lt;!&ndash;-->
+    <!--接口名称 &ndash;&gt;-->
+    <!--<property name="serialize" value="hessian" />&lt;!&ndash; 序列化，hessian/json/protobuf &ndash;&gt;-->
+    <!--<property name="protocol" value="default" />&lt;!&ndash; 协议，default/http &ndash;&gt;-->
+    <!--<property name="callMethod" value="sync" />&lt;!&ndash; 调用方式，sync/future/callback/oneway &ndash;&gt;-->
+    <!--<property name="timeout" value="2000" />&lt;!&ndash; 超时时间，毫秒 &ndash;&gt;-->
+    <!--</bean>-->
+
+    <!--<bean class="com.dianping.dpsf.spring.ServiceRegistry"-->
+    <!--init-method="init">-->
+    <!--<property name="port" value="4040" />-->
+    <!--<property name="services">-->
+    <!--<map>-->
+    <!--<entry key="http://service.dianping.com/dpHalleyService/taskService_1.0.0"-->
+    <!--value-ref="taskServiceImpl" />-->
+    <!--</map>-->
+    <!--</property>-->
+    <!--</bean>-->
+    <!--<bean id="taskServiceImpl" class="com.dianping.data.warehouse.core.service.TaskServiceImpl"/>-->
+
+    <bean id="taskPublish" class="com.dianping.data.warehouse.core.service.TaskPublishImpl"/>
+
+</beans>

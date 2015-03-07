@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <typeAlias alias="instance" type="com.dianping.data.warehouse.halley.model.InstanceDO"/>
+        <typeAlias alias="log" type="com.dianping.data.warehouse.halley.model.TransformLogDO"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="sqlmap/instance-mapper.xml"/>
+    </mappers>
+</configuration>

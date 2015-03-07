@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.core.dao.MonitorDAO">
+
+    <resultMap type="MonitorDO" id="monitorDO">
+        <id property="autoId" column="auto_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="pinyinName" column="pinyin_name"/>
+        <result property="mobileNo" column="mobile_no"/>
+        <result property="officeNo" column="office_no"/>
+        <result property="orderId" column="order_id"/>
+        <result property="beginDate" column="begin_date"/>
+        <result property="addUser" column="add_user"/>
+        <result property="addTime" column="add_time"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="getMonitors" resultMap="monitorDO">
+        SELECT *  FROM etl_monitor_user ORDER BY begin_date DESC
+    </select>
+
+    <update id="addMonitorRecord" parameterType="monitorDO">
+        UPDATE etl_monitor_user SET
+        begin_date = #{beginDate}
+        <where>
+            auto_id = #{autoId}
+        </where>
+    </update>
+
+</mapper>

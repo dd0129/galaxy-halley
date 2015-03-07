@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.dao.ExceptionDAO">
+
+    <resultMap id="exceptionDAO" type="exceptionAlertDO">
+        <result property="id" column="id"/>
+        <result property="product" column="product"/>
+        <result property="description" column="description"/>
+        <result property="oncall" column="oncall"/>
+    </resultMap>
+
+
+    <select id="getExceptionAlertsByProduct" resultMap="exceptionDAO" parameterType="String">
+        select id,product,description,oncall
+        from etl_exception_cfg
+        where
+        product = #{_parameter}
+	</select>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dianping.data.warehouse.core.dao.PublishFileDAO">
+
+    <resultMap id="file" type="PublishFile">
+        <result property="publishId" column="publish_id"/>
+        <result property="filename" column="file"/>
+        <result property="flag" column="flag"/>
+        <result property="host" column="host"/>
+    </resultMap>
+
+    <select id="getPublishListByID" resultMap="file" parameterType="List">
+		select * from etl_publish_log where publish_Id=#{publishId}
+	</select>
+
+    <insert id="insertPublishFile" parameterType="PublishFile">
+	INSERT INTO etl_publish_log
+        (
+            publish_id,file,flag,host
+        )
+        VALUES
+            (
+            #{publishId},#{filename},#{flag},#{host}
+            )
+	</insert>
+
+</mapper>
